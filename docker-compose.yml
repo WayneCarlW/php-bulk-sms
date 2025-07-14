@@ -3,7 +3,7 @@ services:
     build: .
     container_name: bulk-sms-app
     ports:
-      - "8080:80"
+      - "8090:8090"
     volumes:
       - .:/var/www/html
     depends_on:
@@ -22,7 +22,7 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d
+      - ./init:/docker-entrypoint-initdb.d/
 
 volumes:
   dbdata:
