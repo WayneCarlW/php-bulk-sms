@@ -3,9 +3,14 @@ services:
     build: .
     container_name: bulk-sms-app
     ports:
-      - "8090:8090"
+      - "8090:80"
     volumes:
-      - .:/var/www/html
+      # Mount only specific files/directories instead of entire project
+      - ./index.html:/var/www/html/index.html
+      - ./send_sms.php:/var/www/html/send_sms.php
+      - ./db.php:/var/www/html/db.php
+      - ./.env:/var/www/html/.env
+      # Don't mount vendor/ - let it stay from the Docker build
     depends_on:
       - db
 
