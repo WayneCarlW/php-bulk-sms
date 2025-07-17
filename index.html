@@ -1,14 +1,653 @@
 <!DOCTYPE html>
-<html>
-<head><title>Send SMS</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk SMS Dashboard</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
 <body>
-  <h2>Send SMS</h2>
-  <form action="send_sms.php" method="POST">
-    <label>Phone Number(s):</label><br>
-    <input type="text" name="phone" placeholder="+254711..." required><br><br>
-    <label>Message:</label><br>
-    <textarea name="message" required></textarea><br><br>
-    <button type="submit">Send SMS</button>
-  </form>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-sms"></i>
+                <span>Bulk SMS</span>
+            </div>
+            
+            <div class="nav-stats">
+                <div class="stat-item">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="stat-label">Sent Today</span>
+                    <span class="stat-value">1,247</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-wallet"></i>
+                    <span class="stat-label">Credits</span>
+                    <span class="stat-value">8,532</span>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="btn-icon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                
+                <div class="user-menu">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=667eea&color=fff" alt="User">
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-name">John Doe</div>
+                            <div class="user-email">john@example.com</div>
+                        </div>
+                        <hr>
+                        <a href="#"><i class="fas fa-user"></i> Profile</a>
+                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                        <a href="#"><i class="fas fa-credit-card"></i> Billing</a>
+                        <hr>
+                        <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h3>Main</h3>
+                    <ul class="sidebar-menu">
+                        <li class="menu-item active">
+                            <a href="#" onclick="showTab('compose')">
+                                <i class="fas fa-edit"></i>
+                                <span>Compose Message</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" onclick="showTab('logs')">
+                                <i class="fas fa-history"></i>
+                                <span>System Logs</span>
+                                <span class="menu-badge">42</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" onclick="showTab('contacts')">
+                                <i class="fas fa-address-book"></i>
+                                <span>Contacts</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" onclick="showTab('templates')">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Templates</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Analytics</h3>
+                    <ul class="sidebar-menu">
+                        <li class="menu-item">
+                            <a href="#" onclick="showTab('reports')">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" onclick="showTab('analytics')">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Analytics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content">
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showTab('compose')" data-tab="compose">
+                        <i class="fas fa-edit"></i>
+                        Compose Message
+                    </button>
+                    <button class="tab-btn" onclick="showTab('logs')" data-tab="logs">
+                        <i class="fas fa-history"></i>
+                        System Logs
+                        <span class="tab-badge">42</span>
+                    </button>
+                </div>
+                
+                <div class="tab-actions">
+                    <button class="btn-secondary" onclick="refreshCurrentTab()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Compose Message Tab -->
+            <div class="tab-content active" id="compose-tab">
+                <div class="content-header">
+                    <h1>
+                        <i class="fas fa-edit"></i>
+                        Compose Message
+                    </h1>
+                    <p>Send SMS messages to single or multiple recipients</p>
+                </div>
+
+                <div class="compose-container">
+                    <div class="compose-main">
+                        <form class="compose-form" action="send_sms.php" method="POST">
+                            <!-- Recipients Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <h3>
+                                        <i class="fas fa-users"></i>
+                                        Recipients
+                                    </h3>
+                                    <div class="section-actions">
+                                        <button type="button" class="btn-link" onclick="showContactModal()">
+                                            <i class="fas fa-address-book"></i>
+                                            Select from contacts
+                                        </button>
+                                        <button type="button" class="btn-link" onclick="importNumbers()">
+                                            <i class="fas fa-file-upload"></i>
+                                            Import CSV
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="recipients-input">
+                                    <label for="phone">Phone Numbers</label>
+                                    <textarea 
+                                        id="phone" 
+                                        name="phone" 
+                                        placeholder="Enter phone numbers (one per line or comma-separated)&#10;+254711234567&#10;+254722345678"
+                                        required
+                                        oninput="updateRecipientCount()"
+                                    ></textarea>
+                                    <div class="input-help">
+                                        <span class="recipient-count">0 recipients</span>
+                                        <span class="input-tip">Tip: Use international format (+254...)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Message Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <h3>
+                                        <i class="fas fa-comment"></i>
+                                        Message
+                                    </h3>
+                                    <div class="section-actions">
+                                        <button type="button" class="btn-link" onclick="showTemplateModal()">
+                                            <i class="fas fa-file-alt"></i>
+                                            Use template
+                                        </button>
+                                        <button type="button" class="btn-link" onclick="addPersonalization()">
+                                            <i class="fas fa-user-tag"></i>
+                                            Personalize
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="message-input">
+                                    <label for="message">Message Content</label>
+                                    <textarea 
+                                        id="message" 
+                                        name="message" 
+                                        placeholder="Type your message here..."
+                                        required
+                                        oninput="updateCharacterCount()"
+                                        maxlength="1600"
+                                    ></textarea>
+                                    <div class="message-stats">
+                                        <span class="char-count">0/160 characters</span>
+                                        <span class="sms-parts">1 SMS</span>
+                                        <span class="estimated-cost">Est. cost: $0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scheduling Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <h3>
+                                        <i class="fas fa-clock"></i>
+                                        Delivery Options
+                                    </h3>
+                                </div>
+                                
+                                <div class="delivery-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="delivery_type" value="immediate" checked>
+                                        <span class="radio-custom"></span>
+                                        <div class="option-content">
+                                            <strong>Send Immediately</strong>
+                                            <p>Messages will be sent right away</p>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="radio-option">
+                                        <input type="radio" name="delivery_type" value="scheduled">
+                                        <span class="radio-custom"></span>
+                                        <div class="option-content">
+                                            <strong>Schedule for Later</strong>
+                                            <p>Choose a specific date and time</p>
+                                        </div>
+                                    </label>
+                                    
+                                    <div class="schedule-inputs" id="scheduleInputs" style="display: none;">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="schedule_date">Date</label>
+                                                <input type="date" id="schedule_date" name="schedule_date">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="schedule_time">Time</label>
+                                                <input type="time" id="schedule_time" name="schedule_time">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Section -->
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary">
+                                    <i class="fas fa-save"></i>
+                                    Save Draft
+                                </button>
+                                <button type="button" class="btn-outline">
+                                    <i class="fas fa-eye"></i>
+                                    Preview
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Compose Sidebar -->
+                    <div class="compose-sidebar">
+                        <div class="sidebar-widget">
+                            <h4>
+                                <i class="fas fa-chart-pie"></i>
+                                Quick Stats
+                            </h4>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number">1,247</div>
+                                    <div class="stat-label">Sent Today</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">8,532</div>
+                                    <div class="stat-label">Credits Left</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">94.2%</div>
+                                    <div class="stat-label">Delivery Rate</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">156</div>
+                                    <div class="stat-label">Contacts</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-widget">
+                            <h4>
+                                <i class="fas fa-history"></i>
+                                Recent Templates
+                            </h4>
+                            <div class="template-list">
+                                <div class="template-item" onclick="useTemplate('Welcome to our service! We\'re excited to have you on board.')">
+                                    <div class="template-name">Welcome Message</div>
+                                    <div class="template-preview">Welcome to our service! We're excited...</div>
+                                </div>
+                                <div class="template-item" onclick="useTemplate('Your order has been confirmed and will be delivered soon.')">
+                                    <div class="template-name">Order Confirmation</div>
+                                    <div class="template-preview">Your order has been confirmed...</div>
+                                </div>
+                                <div class="template-item" onclick="useTemplate('Reminder: You have an appointment tomorrow at 2 PM.')">
+                                    <div class="template-name">Appointment Reminder</div>
+                                    <div class="template-preview">Reminder: You have an appointment...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Logs Tab -->
+            <div class="tab-content" id="logs-tab">
+                <div class="content-header">
+                    <h1>
+                        <i class="fas fa-history"></i>
+                        System Logs
+                    </h1>
+                    <p>Monitor message delivery status and system activity</p>
+                </div>
+
+                <div class="logs-container">
+                    <!-- Logs Filters -->
+                    <div class="logs-filters">
+                        <div class="filter-group">
+                            <label for="log-status">Status</label>
+                            <select id="log-status" onchange="filterLogs()">
+                                <option value="">All Status</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="sent">Sent</option>
+                                <option value="failed">Failed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="log-date">Date Range</label>
+                            <select id="log-date" onchange="filterLogs()">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="week">Last 7 days</option>
+                                <option value="month">Last 30 days</option>
+                                <option value="custom">Custom range</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="log-search">Search</label>
+                            <div class="search-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="log-search" placeholder="Search phone numbers or messages..." onkeyup="searchLogs()">
+                            </div>
+                        </div>
+                        
+                        <div class="filter-actions">
+                            <button class="btn-outline" onclick="exportLogs()">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                            <button class="btn-secondary" onclick="clearFilters()">
+                                <i class="fas fa-times"></i>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Logs Summary -->
+                    <div class="logs-summary">
+                        <div class="summary-card delivered">
+                            <div class="summary-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-number">1,156</div>
+                                <div class="summary-label">Delivered</div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card sent">
+                            <div class="summary-icon">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-number">91</div>
+                                <div class="summary-label">Sent</div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card failed">
+                            <div class="summary-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-number">23</div>
+                                <div class="summary-label">Failed</div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card pending">
+                            <div class="summary-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-number">12</div>
+                                <div class="summary-label">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Table -->
+                    <div class="logs-table-container">
+                        <table class="logs-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th>Time</th>
+                                    <th>Recipient</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                    <th>Delivery Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>
+                                        <div class="time-cell">
+                                            <div class="time">14:35:42</div>
+                                            <div class="date">Jul 16, 2025</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="recipient-cell">
+                                            <i class="fas fa-mobile-alt"></i>
+                                            +254711234567
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="message-cell">
+                                            <div class="message-preview">Welcome to our service! We're excited to have you...</div>
+                                            <button class="btn-link" onclick="showFullMessage()">View full</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge delivered">
+                                            <i class="fas fa-check-circle"></i>
+                                            Delivered
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="delivery-time">
+                                            <div class="time">14:35:45</div>
+                                            <div class="duration">3s</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="retryMessage()" title="Retry">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="viewDetails()" title="Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>
+                                        <div class="time-cell">
+                                            <div class="time">14:32:18</div>
+                                            <div class="date">Jul 16, 2025</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="recipient-cell">
+                                            <i class="fas fa-mobile-alt"></i>
+                                            +254722345678
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="message-cell">
+                                            <div class="message-preview">Your order #12345 has been confirmed and will be...</div>
+                                            <button class="btn-link" onclick="showFullMessage()">View full</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge failed">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Failed
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="delivery-time">
+                                            <div class="time">-</div>
+                                            <div class="duration error">Invalid number</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="retryMessage()" title="Retry">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="viewDetails()" title="Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>
+                                        <div class="time-cell">
+                                            <div class="time">14:28:56</div>
+                                            <div class="date">Jul 16, 2025</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="recipient-cell">
+                                            <i class="fas fa-mobile-alt"></i>
+                                            +254733456789
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="message-cell">
+                                            <div class="message-preview">Reminder: You have an appointment tomorrow at 2 PM...</div>
+                                            <button class="btn-link" onclick="showFullMessage()">View full</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge pending">
+                                            <i class="fas fa-clock"></i>
+                                            Pending
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="delivery-time">
+                                            <div class="time">-</div>
+                                            <div class="duration">Queued</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="cancelMessage()" title="Cancel">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="viewDetails()" title="Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Showing 1-20 of 1,282 messages
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn-icon" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="btn-page active">1</button>
+                            <button class="btn-page">2</button>
+                            <button class="btn-page">3</button>
+                            <span class="pagination-dots">...</span>
+                            <button class="btn-page">65</button>
+                            <button class="btn-icon">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="btn-link" onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item unread">
+                <div class="notification-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Message delivered successfully</div>
+                    <div class="notification-text">123 messages sent to +254711234567</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Low credit balance</div>
+                    <div class="notification-text">You have 150 credits remaining</div>
+                    <div class="notification-time">5 minutes ago</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">System maintenance</div>
+                    <div class="notification-text">Scheduled for tonight at 2 AM</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
