@@ -24,7 +24,7 @@ services:
       MYSQL_USER: sms_user
       MYSQL_PASSWORD: password123
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
       - ./init:/docker-entrypoint-initdb.d/
