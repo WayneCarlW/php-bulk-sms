@@ -1,21 +1,27 @@
 FROM php:8.2-apache
 
-# Install PHP extensions
+# Install required packages
 RUN apt-get update && apt-get install -y \
-    git curl unzip libzip-dev \
+    git curl unzip zip libzip-dev \
     && docker-php-ext-install pdo pdo_mysql
 
-# Enable mod_rewrite (optional)
+# Enable Apache rewrite
 RUN a2enmod rewrite
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Copy app source
-COPY . /var/www/html
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install Africa's Talking SDK
-RUN composer require africastalking/africastalking
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy only composer files first (to cache dependencies during builds)
+COPY composer.json composer.lock* ./
+
+# Install PHP dependencies (creates vendor/)
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy the rest of the app files
+COPY . .
+
+# Expose port
+EXPOSE 80

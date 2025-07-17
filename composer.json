@@ -1,0 +1,6 @@
+{
+  "name": "yourname/bulk-sms-app",
+  "require": {
+    "africastalking/africastalking": "^3.0"
+  }
+}
