@@ -1,125 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk SMS Manager</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/dashboard.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome | Bulk SMS Manager</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #5b2c83, #1f3c88);
+      color: #fff;
+    }
+
+    .landing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .landing-header i {
+      font-size: 3.5rem;
+      color: #e0c3fc;
+    }
+
+    .landing-header h1 {
+      font-size: 2.8rem;
+      margin: 1rem 0 0.5rem;
+      color: #ffffff;
+    }
+
+    .landing-header p {
+      font-size: 1.2rem;
+      color: #ddd;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .landing-buttons {
+      margin-top: 2.5rem;
+    }
+
+    .landing-buttons .btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      margin: 0 1rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-login {
+      background-color: #8e44ad;
+      color: #fff;
+    }
+
+    .btn-login:hover {
+      background-color: #732d91;
+    }
+
+    .btn-register {
+      background-color: #1abc9c;
+      color: #fff;
+    }
+
+    .btn-register:hover {
+      background-color: #16a085;
+    }
+
+    @media (max-width: 600px) {
+      .landing-buttons .btn {
+        display: block;
+        margin: 1rem 0;
+        width: 80%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-sms"></i> Bulk SMS Manager</h1>
-            <p>Send messages to multiple recipients efficiently</p>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="tab-navigation">
-            <button class="tab-btn active" onclick="switchTab('composer')">
-                <i class="fas fa-edit"></i> Message Composer
-            </button>
-            <button class="tab-btn" onclick="switchTab('logs')">
-                <i class="fas fa-chart-line"></i> Message Logs
-            </button>
-        </div>
-
-        <!-- Message Composer Tab -->
-        <div id="composer-tab" class="tab-content active">
-            <div class="compose-section">
-                <h2 class="section-title">
-                    <i class="fas fa-edit"></i>
-                    Compose Message
-                </h2>
-
-                <form id="smsForm">
-                    <div class="form-group">
-                        <label for="messageText">Message Content</label>
-                        <div class="textarea-container">
-                            <textarea id="messageText" name="message" rows="4" placeholder="Type your message here..." maxlength="160"></textarea>
-                            <span class="char-counter" id="charCounter">0/160</span>
-                        </div>
-                    </div>
-
-                    <div class="recipients-section">
-                        <h3>Recipients</h3>
-                        <div class="recipients-input">
-                            <input type="tel" id="recipientInput" placeholder="Enter phone number (+1234567890)">
-                            <button type="button" class="btn btn-secondary" onclick="addRecipient()">
-                                <i class="fas fa-plus"></i> Add
-                            </button>
-                        </div>
-                        
-                        <div class="file-upload" onclick="document.getElementById('csvFile').click()">
-                            <i class="fas fa-upload"></i>
-                            <p>Upload CSV file with phone numbers</p>
-                            <input type="file" id="csvFile" accept=".csv" onchange="handleFileUpload(event)">
-                        </div>
-
-                        <div id="recipientsList" class="recipients-list" style="display: none;">
-                            <!-- Recipients will be added here dynamically -->
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Send Messages
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Message Logs Tab -->
-        <div id="logs-tab" class="tab-content">
-            <div class="reports-section">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-line"></i>
-                    Reports & History
-                </h2>
-
-                <div class="form-group">
-                    <select id="reportFilter">
-                        <option value="all">All Messages</option>
-                        <option value="sent">Sent</option>
-                        <option value="failed">Failed</option>
-                        <option value="pending">Pending</option>
-                    </select>
-                </div>
-
-                <table class="reports-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Recipients</th>
-                            <th>Status</th>
-                            <th>Message</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportsTableBody">
-                        <!-- Sample data - replace with dynamic content -->
-                        <tr>
-                            <td>2024-01-15 14:30</td>
-                            <td>5</td>
-                            <td><span class="status-badge status-sent">Sent</span></td>
-                            <td>Welcome to our service!</td>
-                        </tr>
-                        <tr>
-                            <td>2024-01-15 10:15</td>
-                            <td>3</td>
-                            <td><span class="status-badge status-failed">Failed</span></td>
-                            <td>Reminder: Meeting tomorrow</td>
-                        </tr>
-                        <tr>
-                            <td>2024-01-14 16:45</td>
-                            <td>8</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>Thank you for your order</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  <div class="landing-container">
+    <div class="landing-header">
+      <i class="fas fa-envelope-open-text"></i>
+      <h1>Welcome to Bulk SMS Manager</h1>
+      <p>
+        Reach your audience instantly with our reliable and easy-to-use SMS platform. Professional. Powerful. Purple.
+      </p>
     </div>
 
-    <script src="assets/js/dashboard.js"></script>
+    <div class="landing-buttons">
+      <a href="login.html" class="btn btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <a href="register.html" class="btn btn-register"><i class="fas fa-user-plus"></i> Register</a>
+    </div>
+  </div>
 </body>
 </html>
