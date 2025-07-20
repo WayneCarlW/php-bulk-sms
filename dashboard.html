@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head><title>Send SMS</title></head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-sms"></i> Bulk SMS Manager</h1>
+            <p>Send messages to multiple recipients efficiently</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('composer')">
+                <i class="fas fa-edit"></i> Message Composer
+            </button>
+            <button class="tab-btn" onclick="switchTab('logs')">
+                <i class="fas fa-chart-line"></i> Message Logs
+            </button>
+        </div>
+
+        <!-- Message Composer Tab -->
+        <div id="composer-tab" class="tab-content active">
+            <div class="compose-section">
+                <h2 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Compose Message
+                </h2>
+
+                <div id="messageDiv"></div>
+
+                <form id="smsForm" action="send_sms.php" method="POST">
+                    <div class="form-group">
+                        <label for="messageText">Message Content</label>
+                        <div class="textarea-container">
+                            <textarea id="messageText" name="message" rows="4" placeholder="Type your message here..." maxlength="160" required></textarea>
+                            <span class="char-counter" id="charCounter">0/160</span>
+                        </div>
+                    </div>
+
+                    <div class="recipients-section">
+                        <h3>Recipients</h3>
+                        <div class="recipients-input">
+                            <input type="tel" id="recipientInput" placeholder="Enter phone number (+254712345678)">
+                            <button type="button" class="btn btn-secondary" onclick="addRecipient()">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                        
+                        <div class="file-upload" onclick="document.getElementById('csvFile').click()">
+                            <i class="fas fa-upload"></i>
+                            <p>Upload CSV file with phone numbers</p>
+                            <input type="file" id="csvFile" accept=".csv" onchange="handleFileUpload(event)">
+                        </div>
+
+                        <div id="recipientsList" class="recipients-list" style="display: none;">
+                            <!-- Recipients will be added here dynamically -->
+                        </div>
+
+                        <!-- Hidden input to store recipients as comma-separated string -->
+                        <input type="hidden" id="recipientsInput" name="phone" value="">
+                    </div>
+
+                    <div class="loading" id="loadingDiv">
+                        <div class="spinner"></div>
+                        <p>Sending messages...</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> Send Messages
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Message Logs Tab -->
+        <div id="logs-tab" class="tab-content">
+            <div class="reports-section">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Reports & History
+                </h2>
+
+                <div class="form-group">
+                    <select id="reportFilter">
+                        <option value="all">All Messages</option>
+                        <option value="sent">Sent</option>
+                        <option value="failed">Failed</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Recipients</th>
+                            <th>Status</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- Sample data - replace with dynamic content -->
+                        <tr>
+                            <td>2024-01-15 14:30</td>
+                            <td>5</td>
+                            <td><span class="status-badge status-sent">Sent</span></td>
+                            <td>Welcome to our service!</td>
+                        </tr>
+                        <tr>
+                            <td>2024-01-15 10:15</td>
+                            <td>3</td>
+                            <td><span class="status-badge status-failed">Failed</span></td>
+                            <td>Reminder: Meeting tomorrow</td>
+                        </tr>
+                        <tr>
+                            <td>2024-01-14 16:45</td>
+                            <td>8</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Thank you for your order</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
