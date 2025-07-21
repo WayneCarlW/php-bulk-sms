@@ -37,6 +37,9 @@ function initializeApp() {
     document.getElementById('reportFilter').addEventListener('change', function() {
         filterReports(this.value);
     });
+
+    // 🔽 Add this at the very end:
+    loadReportsFromServer();
 }
 
 // Switch between tabs
@@ -311,6 +314,39 @@ function validatePhoneNumber(phone) {
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     return phoneRegex.test(phone);
 }
+
+function loadReportsFromServer() {
+    fetch('fetch_reports.php')
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error("Failed to fetch reports:", data.error);
+                return;
+            }
+
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.data.forEach(row => {
+                const statusClass = {
+                    sent: 'status-sent',
+                    failed: 'status-failed',
+                    pending: 'status-pending'
+                }[row.status.toLowerCase()] || '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.created_at}</td>
+                    <td>${row.recipients}</td>
+                    <td><span class="status-badge ${statusClass}">${row.status}</span></td>
+                    <td>${row.message}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(err => console.error('Error fetching report data:', err));
+}
+
 
 // Export functions for testing or external use
 window.BulkSMS = {
