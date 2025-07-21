@@ -128,7 +128,7 @@ try {
     
     echo "</div>";
     echo "<div style='margin-top: 20px; text-align: center;'>";
-    echo "<a href='index.html' style='background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>← Back to SMS Manager</a>";
+    echo "<a href='dashboard.html' style='background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>← Back to SMS Manager</a>";
     echo "</div>";
     echo "</div>";
 
