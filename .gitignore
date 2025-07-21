@@ -1,1 +1,10 @@
 .env*
+vendor/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+composer.lock
+docker-compose.override.yml

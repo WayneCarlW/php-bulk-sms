@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome | Bulk SMS Manager</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #5b2c83, #1f3c88);
+      color: #fff;
+    }
+
+    .landing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .landing-header i {
+      font-size: 3.5rem;
+      color: #e0c3fc;
+    }
+
+    .landing-header h1 {
+      font-size: 2.8rem;
+      margin: 1rem 0 0.5rem;
+      color: #ffffff;
+    }
+
+    .landing-header p {
+      font-size: 1.2rem;
+      color: #ddd;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .landing-buttons {
+      margin-top: 2.5rem;
+    }
+
+    .landing-buttons .btn {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      margin: 0 1rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-login {
+      background-color: #8e44ad;
+      color: #fff;
+    }
+
+    .btn-login:hover {
+      background-color: #732d91;
+    }
+
+    .btn-register {
+      background-color: #1abc9c;
+      color: #fff;
+    }
+
+    .btn-register:hover {
+      background-color: #16a085;
+    }
+
+    @media (max-width: 600px) {
+      .landing-buttons .btn {
+        display: block;
+        margin: 1rem 0;
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-container">
+    <div class="landing-header">
+      <i class="fas fa-envelope-open-text"></i>
+      <h1>Welcome to Bulk SMS Manager</h1>
+      <p>
+        Reach your audience instantly with our reliable and easy-to-use SMS platform. Professional. Powerful. Purple.
+      </p>
+    </div>
+
+    <div class="landing-buttons">
+      <a href="login.html" class="btn btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <a href="register.html" class="btn btn-register"><i class="fas fa-user-plus"></i> Register</a>
+    </div>
+  </div>
+</body>
+</html>
