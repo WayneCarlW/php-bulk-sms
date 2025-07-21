@@ -32,11 +32,13 @@
                     Compose Message
                 </h2>
 
-                <form id="smsForm">
+                <div id="messageDiv"></div>
+
+                <form id="smsForm" action="send_sms.php" method="POST">
                     <div class="form-group">
                         <label for="messageText">Message Content</label>
                         <div class="textarea-container">
-                            <textarea id="messageText" name="message" rows="4" placeholder="Type your message here..." maxlength="160"></textarea>
+                            <textarea id="messageText" name="message" rows="4" placeholder="Type your message here..." maxlength="160" required></textarea>
                             <span class="char-counter" id="charCounter">0/160</span>
                         </div>
                     </div>
@@ -44,7 +46,7 @@
                     <div class="recipients-section">
                         <h3>Recipients</h3>
                         <div class="recipients-input">
-                            <input type="tel" id="recipientInput" placeholder="Enter phone number (+1234567890)">
+                            <input type="tel" id="recipientInput" placeholder="Enter phone number (+254712345678)">
                             <button type="button" class="btn btn-secondary" onclick="addRecipient()">
                                 <i class="fas fa-plus"></i> Add
                             </button>
@@ -59,9 +61,17 @@
                         <div id="recipientsList" class="recipients-list" style="display: none;">
                             <!-- Recipients will be added here dynamically -->
                         </div>
+
+                        <!-- Hidden input to store recipients as comma-separated string -->
+                        <input type="hidden" id="recipientsInput" name="phone" value="">
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    <div class="loading" id="loadingDiv">
+                        <div class="spinner"></div>
+                        <p>Sending messages...</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="sendBtn">
                         <i class="fas fa-paper-plane"></i> Send Messages
                     </button>
                 </form>

@@ -1,17 +1,8 @@
 let recipients = [];
-let profiles = JSON.parse(localStorage.getItem('smsProfiles')) || [];
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '',
-    company: ''
-};
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
-    loadProfiles();
-    loadUserProfile();
 });
 
 function initializeApp() {
@@ -19,6 +10,16 @@ function initializeApp() {
     document.getElementById('messageText').addEventListener('input', function () {
         const charCount = this.value.length;
         document.getElementById('charCounter').textContent = charCount + '/160';
+        
+        // Change color based on character count
+        const counter = document.getElementById('charCounter');
+        if (charCount > 140) {
+            counter.style.color = '#dc2626';
+        } else if (charCount > 120) {
+            counter.style.color = '#f59e0b';
+        } else {
+            counter.style.color = '#6b7280';
+        }
     });
 
     // Form submission
@@ -31,153 +32,11 @@ function initializeApp() {
             addRecipient();
         }
     });
-}
 
-// User Profile Management
-function loadUserProfile() {
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('userEmail').textContent = currentUser.email;
-
-    // Update avatar with initials
-    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    document.getElementById('userAvatar').textContent = initials;
-}
-
-function openProfileModal() {
-    document.getElementById('editName').value = currentUser.name;
-    document.getElementById('editEmail').value = currentUser.email;
-    document.getElementById('editPhone').value = currentUser.phone;
-    document.getElementById('editCompany').value = currentUser.company;
-    document.getElementById('profileModal').style.display = 'block';
-}
-
-function closeProfileModal() {
-    document.getElementById('profileModal').style.display = 'none';
-}
-
-function saveUserProfile() {
-    const name = document.getElementById('editName').value.trim();
-    const email = document.getElementById('editEmail').value.trim();
-    const phone = document.getElementById('editPhone').value.trim();
-    const company = document.getElementById('editCompany').value.trim();
-
-    if (!name || !email) {
-        alert('Please fill in all required fields');
-        return;
-    }
-
-    currentUser = { name, email, phone, company };
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-    loadUserProfile();
-    closeProfileModal();
-    alert('Profile updated successfully!');
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        // Clear user session (in real app, this would be server-side)
-        localStorage.removeItem('currentUser');
-
-        // Redirect to login page (you would create this)
-        alert('Logged out successfully! Redirecting to login page...');
-        // window.location.href = 'login.html';
-    }
-}
-
-// Close modal when clicking outside
-window.onclick = function (event) {
-    const modal = document.getElementById('profileModal');
-    if (event.target === modal) {
-        closeProfileModal();
-    }
-}
-
-// Profile Management Functions
-function saveProfile() {
-    const profileName = document.getElementById('profileName').value.trim();
-    const message = document.getElementById('messageText').value.trim();
-
-    if (!profileName) {
-        alert('Please enter a profile name');
-        return;
-    }
-
-    if (!message && recipients.length === 0) {
-        alert('Please add a message or recipients to save');
-        return;
-    }
-
-    const profile = {
-        id: Date.now(),
-        name: profileName,
-        message: message,
-        recipients: [...recipients],
-        createdAt: new Date().toISOString()
-    };
-
-    // Check if profile name already exists
-    const existingIndex = profiles.findIndex(p => p.name === profileName);
-    if (existingIndex !== -1) {
-        if (confirm('Profile with this name already exists. Do you want to overwrite it?')) {
-            profiles[existingIndex] = profile;
-        } else {
-            return;
-        }
-    } else {
-        profiles.push(profile);
-    }
-
-    localStorage.setItem('smsProfiles', JSON.stringify(profiles));
-    loadProfiles();
-    document.getElementById('profileName').value = '';
-    alert('Profile saved successfully!');
-}
-
-function loadProfile(profileId) {
-    const profile = profiles.find(p => p.id === profileId);
-    if (profile) {
-        document.getElementById('messageText').value = profile.message;
-        document.getElementById('charCounter').textContent = profile.message.length + '/160';
-        recipients = [...profile.recipients];
-        updateRecipientsList();
-        alert(`Profile "${profile.name}" loaded successfully!`);
-    }
-}
-
-function deleteProfile(profileId) {
-    if (confirm('Are you sure you want to delete this profile?')) {
-        profiles = profiles.filter(p => p.id !== profileId);
-        localStorage.setItem('smsProfiles', JSON.stringify(profiles));
-        loadProfiles();
-        alert('Profile deleted successfully!');
-    }
-}
-
-function loadProfiles() {
-    const profilesList = document.getElementById('profilesList');
-    if (profiles.length === 0) {
-        profilesList.innerHTML = '<p class="no-profiles">No saved profiles</p>';
-        return;
-    }
-
-    profilesList.innerHTML = profiles.map(profile => `
-        <div class="profile-item">
-            <div class="profile-info">
-                <h4>${profile.name}</h4>
-                <p>${profile.recipients.length} recipients • ${profile.message.length} chars</p>
-                <small>Created: ${new Date(profile.createdAt).toLocaleDateString()}</small>
-            </div>
-            <div class="profile-actions">
-                <button class="btn btn-sm btn-primary" onclick="loadProfile(${profile.id})">
-                    <i class="fas fa-download"></i> Load
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteProfile(${profile.id})">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        </div>
-    `).join('');
+    // Report filter functionality
+    document.getElementById('reportFilter').addEventListener('change', function() {
+        filterReports(this.value);
+    });
 }
 
 // Switch between tabs
@@ -196,17 +55,39 @@ function addRecipient() {
     const input = document.getElementById('recipientInput');
     const phone = input.value.trim();
 
-    if (phone && !recipients.includes(phone)) {
-        recipients.push(phone);
-        updateRecipientsList();
-        input.value = '';
+    // Basic phone number validation
+    if (!phone) {
+        showMessage('Please enter a phone number', 'error');
+        return;
     }
+
+    // Check if phone number is valid format (starts with + and contains only digits)
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(phone)) {
+        showMessage('Please enter a valid phone number in international format (e.g., +254712345678)', 'error');
+        return;
+    }
+
+    // Check if phone number already exists
+    if (recipients.includes(phone)) {
+        showMessage('This phone number has already been added', 'error');
+        return;
+    }
+
+    recipients.push(phone);
+    updateRecipientsList();
+    updateRecipientsInput();
+    input.value = '';
+    
+    // Clear any previous error messages
+    document.getElementById('messageDiv').innerHTML = '';
 }
 
 // Remove recipient
 function removeRecipient(phone) {
     recipients = recipients.filter(r => r !== phone);
     updateRecipientsList();
+    updateRecipientsInput();
 }
 
 // Update recipients list display
@@ -219,66 +100,224 @@ function updateRecipientsList() {
     }
 
     listElement.style.display = 'block';
-    listElement.innerHTML = recipients.map(phone => `
-        <div class="recipient-item">
-            <span>${phone}</span>
-            <button class="remove-btn" onclick="removeRecipient('${phone}')">
-                <i class="fas fa-times"></i>
-            </button>
+    listElement.innerHTML = `
+        <div style="margin-bottom: 10px; font-weight: 600; color: #374151;">
+            Recipients (${recipients.length})
         </div>
-    `).join('');
+        ${recipients.map(phone => `
+            <div class="recipient-item">
+                <span>${phone}</span>
+                <button type="button" class="remove-btn" onclick="removeRecipient('${phone}')" title="Remove recipient">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('')}
+    `;
+}
+
+// Update hidden input with recipients
+function updateRecipientsInput() {
+    document.getElementById('recipientsInput').value = recipients.join(',');
 }
 
 // Handle CSV file upload
 function handleFileUpload(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
+    if (!file) return;
+
+    // Check file type
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        showMessage('Please upload a CSV file', 'error');
+        return;
+    }
+
+    // Check file size (limit to 1MB)
+    if (file.size > 1024 * 1024) {
+        showMessage('File is too large. Please upload a file smaller than 1MB', 'error');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
             const csv = e.target.result;
             const lines = csv.split('\n');
+            let addedCount = 0;
+            let skippedCount = 0;
+
             lines.forEach(line => {
                 const phone = line.trim();
-                if (phone && !recipients.includes(phone)) {
+                // Skip empty lines and headers
+                if (!phone || phone.toLowerCase().includes('phone') || phone.toLowerCase().includes('number')) {
+                    return;
+                }
+
+                // Basic validation
+                const phoneRegex = /^\+[1-9]\d{1,14}$/;
+                if (phoneRegex.test(phone) && !recipients.includes(phone)) {
                     recipients.push(phone);
+                    addedCount++;
+                } else {
+                    skippedCount++;
                 }
             });
+
             updateRecipientsList();
-        };
-        reader.readAsText(file);
-    }
+            updateRecipientsInput();
+
+            if (addedCount > 0) {
+                showMessage(`Added ${addedCount} phone numbers from CSV file${skippedCount > 0 ? ` (${skippedCount} skipped due to invalid format or duplicates)` : ''}`, 'success');
+            } else {
+                showMessage('No valid phone numbers found in the CSV file', 'error');
+            }
+        } catch (error) {
+            showMessage('Error reading CSV file. Please check the file format', 'error');
+        }
+    };
+
+    reader.onerror = function() {
+        showMessage('Error reading file', 'error');
+    };
+
+    reader.readAsText(file);
 }
 
 // Handle form submission
 function handleFormSubmission(e) {
-    e.preventDefault();
+    const message = document.getElementById('messageText').value.trim();
+    const messageDiv = document.getElementById('messageDiv');
+    const loadingDiv = document.getElementById('loadingDiv');
+    const sendBtn = document.getElementById('sendBtn');
 
-    const message = document.getElementById('messageText').value;
+    // Clear previous messages
+    messageDiv.innerHTML = '';
 
-    if (!message.trim()) {
-        alert('Please enter a message');
+    // Validate form
+    if (!message) {
+        showMessage('Please enter a message', 'error');
+        e.preventDefault();
+        return;
+    }
+
+    if (message.length > 160) {
+        showMessage('Message is too long. Maximum 160 characters allowed', 'error');
+        e.preventDefault();
         return;
     }
 
     if (recipients.length === 0) {
-        alert('Please add at least one recipient');
+        showMessage('Please add at least one recipient', 'error');
+        e.preventDefault();
         return;
     }
 
-    // Here you would typically send the data to your PHP backend
-    console.log('Sending message:', message, 'to recipients:', recipients);
+    // Update hidden input with current recipients
+    updateRecipientsInput();
 
-    // Simulate sending
-    alert(`Message sent to ${recipients.length} recipients!`);
+    // Show loading state
+    loadingDiv.classList.add('show');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-    // Reset form
-    resetForm();
+    // Show confirmation message
+    showMessage(`Sending message to ${recipients.length} recipient${recipients.length > 1 ? 's' : ''}...`, 'success');
+
+    // Allow form to submit naturally to send_sms.php
+    // Don't prevent default - let the form submit
 }
 
-// Reset form after submission
+// Show message helper
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('messageDiv');
+    const className = type === 'error' ? 'error-message' : 'success-message';
+    messageDiv.innerHTML = `<div class="${className}"><i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}</div>`;
+
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            messageDiv.innerHTML = '';
+        }, 5000);
+    }
+}
+
+// Reset form after submission (if needed)
 function resetForm() {
     document.getElementById('messageText').value = '';
     document.getElementById('charCounter').textContent = '0/160';
+    document.getElementById('charCounter').style.color = '#6b7280';
     recipients = [];
     updateRecipientsList();
+    updateRecipientsInput();
+    
+    // Reset loading state
+    const loadingDiv = document.getElementById('loadingDiv');
+    const sendBtn = document.getElementById('sendBtn');
+    loadingDiv.classList.remove('show');
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Messages';
+
+    // Clear messages
+    document.getElementById('messageDiv').innerHTML = '';
 }
+
+// Clear all recipients
+function clearAllRecipients() {
+    if (recipients.length === 0) {
+        showMessage('No recipients to clear', 'error');
+        return;
+    }
+
+    if (confirm(`Are you sure you want to remove all ${recipients.length} recipients?`)) {
+        recipients = [];
+        updateRecipientsList();
+        updateRecipientsInput();
+        showMessage('All recipients cleared', 'success');
+    }
+}
+
+// Filter reports (placeholder functionality)
+function filterReports(filterValue) {
+    const tbody = document.getElementById('reportsTableBody');
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let row of rows) {
+        const statusCell = row.querySelector('.status-badge');
+        if (!statusCell) continue;
+
+        const status = statusCell.textContent.toLowerCase();
+        
+        if (filterValue === 'all') {
+            row.style.display = '';
+        } else if (filterValue === 'sent' && status.includes('sent')) {
+            row.style.display = '';
+        } else if (filterValue === 'failed' && status.includes('failed')) {
+            row.style.display = '';
+        } else if (filterValue === 'pending' && status.includes('pending')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+}
+
+// Utility functions
+function formatPhoneNumber(phone) {
+    // Remove any non-digit characters except +
+    return phone.replace(/[^\d+]/g, '');
+}
+
+function validatePhoneNumber(phone) {
+    // Basic international phone number validation
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone);
+}
+
+// Export functions for testing or external use
+window.BulkSMS = {
+    addRecipient,
+    removeRecipient,
+    clearAllRecipients,
+    resetForm,
+    validatePhoneNumber,
+    formatPhoneNumber
+};
